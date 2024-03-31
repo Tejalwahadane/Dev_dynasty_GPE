@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../styles2.css">
+<title>Study Plan</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(to bottom, rgb(4, 27, 105), rgb(118, 10, 180), rgb(148, 5, 117));
+        background-repeat: no-repeat; /* Ensure gradient is not repeated */
+        background-size: cover; /* Cover the entire viewport */
+        background-attachment: fixed;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1, h2 {
+        text-align: center;
+        color: #333;
+    }
+
+    #noteForm {
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    input[type="text"],
+    textarea {
+        width: 100%;
+        padding: 8px;
+        margin: 6px 0 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+
+    #saveBtn {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .note {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 10px;
+        margin-bottom: 10px;
+        background-color: #f9f9f9;
+        white-space: pre-wrap; /* Preserve spaces and wrap lines */
+        position: relative;
+    }
+
+    .note h3 {
+        margin: 0 0 5px;
+        color: #333;
+    }
+
+    .note p {
+        margin: 0;
+        color: #666;
+    }
+
+    .timestamp {
+        font-size: 12px;
+        color: #888;
+    }
+
+    .deleteBtn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background-color: #ff0000;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+    .strike-through {
+        text-decoration: line-through;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Study Plan</h1>
+    
+    <!-- Form to save a note -->
+    <form id="noteForm">
+        <label for="note_name">Note Name:</label>
+        <input type="text" id="note_name" name="note_name">
+        <br>
+        <label for="note_content">Study Plan:</label>
+        <textarea id="note_content" name="note_content"></textarea>
+        <br>
+        <button id="saveBtn" type="submit">Save Study Plan</button>
+    </form>
+
+    <h2>Saved Study Plans</h2>
+    <div id="notesList"></div>
+</div>
+
+<script>
+    // Function to save a study plan
+    function saveStudyPlan() {
+        var noteName = document.getElementById('note_name').value.trim();
+        var noteContent = document.getElementById('note_content').value.trim();
+        var timestamp = new Date().toLocaleString(); // Get current date and time
+
+        if (noteName && noteContent) {
+            var note = {
+                name: noteName,
+                content: noteContent,
+                timestamp: timestamp
+            };
+
+            // Get existing study plans from localStorage or initialize an empty array
+            var notes = JSON.parse(localStorage.getItem('studyPlans')) || [];
+            notes.push(note);
+
+            // Save study plans to localStorage
+            localStorage.setItem('studyPlans', JSON.stringify(notes));
+
+            // Refresh study plans list
+            displayStudyPlans();
+            
+            // Display alert
+            alert('Study plan saved successfully!');
+        } else {
+            alert('Please enter both study plan name and content.');
+        }
+
+        // Prevent form submission
+        event.preventDefault();
+    }
+
+    // Function to delete a study plan
+    function deleteStudyPlan(index) {
+        var studyPlans = JSON.parse(localStorage.getItem('studyPlans')) || [];
+        studyPlans.splice(index, 1);
+        localStorage.setItem('studyPlans', JSON.stringify(studyPlans));
+        displayStudyPlans();
+    }
+
+    // Function to display saved study plans
+    function displayStudyPlans() {
+        var notesList = document.getElementById('notesList');
+        notesList.innerHTML = '';
+
+        // Get saved study plans from localStorage
+        var studyPlans = JSON.parse(localStorage.getItem('studyPlans')) || [];
+
+        // Display each study plan in the list
+        studyPlans.forEach(function(note, index) {
+            var noteDiv = document.createElement('div');
+            noteDiv.classList.add('note');
+
+            var h3 = document.createElement('h3');
+            h3.textContent = note.name;
+            noteDiv.appendChild(h3);
+
+            var p = document.createElement('p');
+            p.textContent = note.content;
+            noteDiv.appendChild(p);
+
+            var timestamp = document.createElement('div');
+            timestamp.classList.add('timestamp');
+            timestamp.textContent = 'Created: ' + note.timestamp;
+            noteDiv.appendChild(timestamp);
+
+            var deleteBtn = document.createElement('button');
+            deleteBtn.textContent = 'X';
+            deleteBtn.classList.add('deleteBtn');
+            deleteBtn.addEventListener('click', function() {
+                deleteStudyPlan(index);
+            });
+            noteDiv.appendChild(deleteBtn);
+
+            notesList.appendChild(noteDiv);
+        });
+    }
+
+    // Display saved study plans on page load
+    displayStudyPlans();
+
+    // Event listener for form submission
+    document.getElementById('noteForm').addEventListener('submit', saveStudyPlan);
+</script>
+</body>
+</html>
+
